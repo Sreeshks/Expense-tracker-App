@@ -107,7 +107,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   Widget _buildList(List<TransactionModel> transactions) {
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 120),
       itemCount: transactions.length,
       itemBuilder: (context, index) => _transactionTile(transactions[index]),
     );

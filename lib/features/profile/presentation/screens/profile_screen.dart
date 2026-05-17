@@ -104,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: ListView(
           controller: _parentScrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 120),
           children: [
             const SizedBox(height: 20),
 
@@ -125,8 +125,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            _buildSeparator(),
-            const SizedBox(height: 24),
+            // _buildSeparator(),
+            // const SizedBox(height: 24),
 
             // --- NICKNAME ---
             _sectionLabel('NICKNAME'),
@@ -155,12 +155,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 8),
             Center(child: _buildSyncCard()),
             const SizedBox(height: 24),
-            _buildSeparator(),
-            const SizedBox(height: 24),
+            // _buildSeparator(),
+            // const SizedBox(height: 24),
 
             // --- LOG OUT ---
             _buildLogoutButton(),
-            const SizedBox(height: 40),
+            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -597,12 +597,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Container(
                 width: 311,
                 height: 64,
-                padding: const EdgeInsets.only(
-                  top: 10,
-                  bottom: 10,
-                  left: 12,
-                  right: 12,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: const Color(0x8A4340CA), // #4340CA8A
                   borderRadius: BorderRadius.circular(8),
