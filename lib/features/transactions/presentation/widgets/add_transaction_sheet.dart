@@ -304,8 +304,9 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
   Widget _buildInfoBox() {
     return Container(
       width: 343,
-      height: 55,
-      padding: const EdgeInsets.only(top: 12, bottom: 12, left: 20, right: 20),
+      constraints: const BoxConstraints(minHeight: 55),
+      padding: const EdgeInsets.only(top: 12, bottom: 12, left: 16, right: 16),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: const Color(0x1A008500), // #0085001A
         borderRadius: BorderRadius.circular(8),
@@ -314,18 +315,24 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
           width: 1,
         ),
       ),
-      child: Center(
-        child: Text(
-          'Everything you add here is saved only on your device.',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w400, // Regular
-            height: 1.5, // 150% line-height
-            letterSpacing: 14 * -0.05, // -5% letter-spacing
-            color: Colors.white,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Icon(Icons.info_outline, size: 16, color: Colors.white),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Everything you add here is saved only on \n  your device.',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w400, // Regular
+                height: 1.5, // 150% line-height
+                letterSpacing: 14 * -0.05, // -5% letter-spacing
+                color: Colors.white,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
