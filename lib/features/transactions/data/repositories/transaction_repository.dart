@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'package:sqflite/sqflite.dart';
 import '../../../../core/database/app_database.dart';
 import '../models/transaction_model.dart';
 
@@ -118,5 +119,27 @@ class TransactionRepository {
     for (final id in ids) {
       await db.delete('transactions', where: 'id = ?', whereArgs: [id]);
     }
+  }
+
+  Future<void> saveFetched(List<TransactionModel> transactions) async {
+    final db = await AppDatabase.instance.database;
+    final batch = db.batch();
+    for (final txn in transactions) {
+      batch.insert(
+        'transactions',
+        {
+          'id': txn.id,
+          'amount': txn.amount,
+          'note': txn.note,
+          'type': txn.type,
+          'category_id': txn.categoryId,
+          'timestamp': txn.timestamp.toIso8601String(),
+          'is_synced': 1,
+          'is_deleted': 0,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
   }
 }

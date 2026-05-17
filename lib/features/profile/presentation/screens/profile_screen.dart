@@ -9,6 +9,10 @@ import '../../../../core/database/app_database.dart';
 import '../../../categories/presentation/bloc/category_bloc.dart';
 import '../../../categories/presentation/bloc/category_event.dart';
 import '../../../categories/presentation/bloc/category_state.dart';
+import '../../../home/presentation/bloc/dashboard_bloc.dart';
+import '../../../home/presentation/bloc/dashboard_event.dart';
+import '../../../transactions/presentation/bloc/transaction_bloc.dart';
+import '../../../transactions/presentation/bloc/transaction_event.dart';
 
 import '../../../sync/presentation/bloc/sync_bloc.dart';
 import '../../../sync/presentation/bloc/sync_event.dart';
@@ -53,8 +57,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await prefs.setDouble('monthly_limit', amount);
     setState(() => _currentLimit = amount);
     _limitController.clear();
+
     if (mounted) {
       FocusScope.of(context).unfocus();
+      // Notify DashboardBloc to update the limit display
+      context.read<DashboardBloc>().add(DashboardRefreshRequested());
     }
   }
 
@@ -75,7 +82,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await prefs.remove(ApiConstants.nicknameKey);
     await prefs.remove(ApiConstants.phoneKey);
     await prefs.remove('monthly_limit');
-    await prefs.remove(ApiConstants.onboardingCompleteKey);
+
+    // Reset in-memory BLoC states to prevent visual leakage for different users
+    if (mounted) {
+      context.read<DashboardBloc>().add(DashboardReset());
+      context.read<TransactionBloc>().add(TransactionsReset());
+      context.read<CategoryBloc>().add(CategoriesReset());
+    }
 
     // Clear local database
     await AppDatabase.instance.clearAllData();

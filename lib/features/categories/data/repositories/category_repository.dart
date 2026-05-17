@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'package:sqflite/sqflite.dart';
 import '../../../../core/database/app_database.dart';
 import '../models/category_model.dart';
 
@@ -43,10 +44,7 @@ class CategoryRepository {
 
   Future<List<CategoryModel>> getDeleted() async {
     final db = await AppDatabase.instance.database;
-    final result = await db.query(
-      'categories',
-      where: 'is_deleted = 1',
-    );
+    final result = await db.query('categories', where: 'is_deleted = 1');
     return result.map(CategoryModel.fromMap).toList();
   }
 
@@ -67,5 +65,19 @@ class CategoryRepository {
     for (final id in ids) {
       await db.delete('categories', where: 'id = ?', whereArgs: [id]);
     }
+  }
+
+  Future<void> saveFetched(List<CategoryModel> categories) async {
+    final db = await AppDatabase.instance.database;
+    final batch = db.batch();
+    for (final cat in categories) {
+      batch.insert('categories', {
+        'id': cat.id,
+        'name': cat.name,
+        'is_synced': 1,
+        'is_deleted': 0,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+    await batch.commit(noResult: true);
   }
 }

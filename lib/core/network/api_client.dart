@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/api_constants.dart';
@@ -19,6 +20,7 @@ class ApiClient {
   Future<Map<String, dynamic>> get(String endpoint) async {
     final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     final headers = await _authHeaders();
+    developer.log('API REQUEST [GET] $url', name: 'ApiClient');
     final response = await _client.get(url, headers: headers);
     return _handleResponse(response);
   }
@@ -29,6 +31,7 @@ class ApiClient {
   ) async {
     final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     final headers = await _authHeaders();
+    developer.log('API REQUEST [POST FORM] $url\\nFields: $fields', name: 'ApiClient');
     final request = http.MultipartRequest('POST', url);
     request.headers.addAll(headers);
     request.fields.addAll(fields);
@@ -44,6 +47,7 @@ class ApiClient {
     final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     final headers = await _authHeaders();
     headers['Content-Type'] = 'application/json';
+    developer.log('API REQUEST [POST JSON] $url\\nBody: $body', name: 'ApiClient');
     final response = await _client.post(
       url,
       headers: headers,
@@ -59,6 +63,7 @@ class ApiClient {
     final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     final headers = await _authHeaders();
     headers['Content-Type'] = 'application/json';
+    developer.log('API REQUEST [DELETE JSON] $url\\nBody: $body', name: 'ApiClient');
     final request = http.Request('DELETE', url);
     request.headers.addAll(headers);
     request.body = jsonEncode(body);
@@ -73,6 +78,7 @@ class ApiClient {
   ) async {
     final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     final headers = await _authHeaders();
+    developer.log('API REQUEST [DELETE FORM] $url\\nFields: $fields', name: 'ApiClient');
     final request = http.MultipartRequest('DELETE', url);
     request.headers.addAll(headers);
     request.fields.addAll(fields);
@@ -82,6 +88,10 @@ class ApiClient {
   }
 
   Map<String, dynamic> _handleResponse(http.Response response) {
+    developer.log(
+      'API RESPONSE [${response.statusCode}] ${response.request?.method} ${response.request?.url}\\nBody: ${response.body}',
+      name: 'ApiClient',
+    );
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return body;

@@ -21,3 +21,5 @@ class CategoryDeleted extends CategoryEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class CategoriesReset extends CategoryEvent {}

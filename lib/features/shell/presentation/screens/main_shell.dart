@@ -5,9 +5,17 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../home/presentation/screens/home_screen.dart';
 import '../../../sync/presentation/bloc/sync_bloc.dart';
+import '../../../sync/presentation/bloc/sync_event.dart';
 import '../../../sync/presentation/bloc/sync_state.dart';
 import '../../../transactions/presentation/screens/transactions_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../home/presentation/bloc/dashboard_bloc.dart';
+import '../../../home/presentation/bloc/dashboard_event.dart';
+import '../../../transactions/presentation/bloc/transaction_bloc.dart';
+import '../../../transactions/presentation/bloc/transaction_event.dart';
+import '../../../categories/presentation/bloc/category_bloc.dart';
+import '../../../categories/presentation/bloc/category_event.dart';
+import '../../../../core/widgets/custom_snackbar.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -19,6 +27,17 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
   DateTime? _lastPressedAt;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto sync pulled data on login
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<SyncBloc>().add(SyncRequested());
+      }
+    });
+  }
 
   final _screens = const [HomeScreen(), TransactionsScreen(), ProfileScreen()];
 
@@ -63,23 +82,16 @@ class _MainShellState extends State<MainShell> {
       child: BlocListener<SyncBloc, SyncState>(
         listener: (context, state) {
           if (state.status == SyncStatus.success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Sync completed!', style: GoogleFonts.inter()),
-                backgroundColor: const Color(0xFF1DB954),
-                duration: const Duration(seconds: 2),
-              ),
-            );
+            if (context.mounted) {
+              context.read<DashboardBloc>().add(DashboardRefreshRequested());
+              context.read<TransactionBloc>().add(TransactionsLoadRequested());
+              context.read<CategoryBloc>().add(CategoriesLoadRequested());
+              CustomSnackBar.showSuccess(context, 'Sync completed!');
+            }
           } else if (state.status == SyncStatus.failure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Sync failed: ${state.errorMessage}',
-                  style: GoogleFonts.inter(),
-                ),
-                backgroundColor: const Color(0xFFFF4444),
-              ),
-            );
+            if (context.mounted) {
+              CustomSnackBar.showError(context, 'Sync failed: ${state.errorMessage}');
+            }
           }
         },
         child: Scaffold(

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../transactions/data/repositories/transaction_repository.dart';
 import 'dashboard_event.dart';
 import 'dashboard_state.dart';
@@ -11,6 +12,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         super(const DashboardState()) {
     on<DashboardLoadRequested>(_onLoad);
     on<DashboardRefreshRequested>(_onLoad);
+    on<DashboardReset>((event, emit) => emit(const DashboardState()));
   }
 
   Future<void> _onLoad(
@@ -24,11 +26,15 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final monthlyDebit = await _transactionRepo.getMonthlyDebit();
       final recent = await _transactionRepo.getRecent(limit: 10);
 
+      final prefs = await SharedPreferences.getInstance();
+      final limit = prefs.getDouble('monthly_limit') ?? 10000.0;
+
       emit(state.copyWith(
         status: DashboardStatus.loaded,
         totalIncome: income,
         totalExpense: expense,
         monthlyDebit: monthlyDebit,
+        monthlyLimit: limit,
         recentTransactions: recent,
       ));
     } catch (e) {

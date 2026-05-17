@@ -12,6 +12,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     on<CategoriesLoadRequested>(_onLoad);
     on<CategoryAdded>(_onAdd);
     on<CategoryDeleted>(_onDelete);
+    on<CategoriesReset>((event, emit) => emit(const CategoryState()));
   }
 
   Future<void> _onLoad(

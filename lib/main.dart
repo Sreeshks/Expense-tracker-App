@@ -27,7 +27,7 @@ class ZyboApp extends StatelessWidget {
         BlocProvider(create: (_) => SyncBloc()),
       ],
       child: MaterialApp(
-        title: 'Zybo',
+        title: 'Expense Tracker',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark,
         initialRoute: '/',

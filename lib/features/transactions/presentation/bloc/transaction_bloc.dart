@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../data/repositories/transaction_repository.dart';
 import 'transaction_event.dart';
@@ -13,6 +14,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     on<TransactionsLoadRequested>(_onLoad);
     on<TransactionAdded>(_onAdd);
     on<TransactionDeleted>(_onDelete);
+    on<TransactionsReset>((event, emit) => emit(const TransactionState()));
   }
 
   Future<void> _onLoad(
@@ -48,10 +50,12 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
 
       if (event.type.toLowerCase() == 'debit') {
         final monthlyTotal = await _repo.getMonthlyDebit();
-        if (monthlyTotal > 10000) {
+        final prefs = await SharedPreferences.getInstance();
+        final limit = prefs.getDouble('monthly_limit') ?? 10000.0;
+        if (monthlyTotal > limit) {
           await NotificationService.instance.showBudgetAlert(
             currentTotal: monthlyTotal,
-            threshold: 10000,
+            threshold: limit,
           );
         }
       }

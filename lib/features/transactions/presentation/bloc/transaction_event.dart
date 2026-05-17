@@ -31,3 +31,5 @@ class TransactionDeleted extends TransactionEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class TransactionsReset extends TransactionEvent {}
