@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/asset_paths.dart';
-import '../../../../core/routes/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -51,15 +51,18 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
 
     final prefs = await SharedPreferences.getInstance();
-    final onboardingDone = prefs.getBool('onboarding_complete') ?? false;
+    final onboardingDone =
+        prefs.getBool(ApiConstants.onboardingCompleteKey) ?? false;
+    final hasToken = prefs.containsKey(ApiConstants.tokenKey);
 
     if (!mounted) return;
 
-    if (onboardingDone) {
-      // TODO: Navigate to home screen when implemented
-      Navigator.of(context).pushReplacementNamed(AppRouter.onboarding);
+    if (!onboardingDone) {
+      Navigator.of(context).pushReplacementNamed('/onboarding');
+    } else if (!hasToken) {
+      Navigator.of(context).pushReplacementNamed('/phone');
     } else {
-      Navigator.of(context).pushReplacementNamed(AppRouter.onboarding);
+      Navigator.of(context).pushReplacementNamed('/home');
     }
   }
 

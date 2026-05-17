@@ -31,8 +31,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  void _onCompleted(BuildContext context) {
-    // TODO: Navigate to auth/home screen
+  void _onCompleted() {
+    if (!mounted) return;
+    Navigator.of(context).pushReplacementNamed('/phone');
   }
 
   void _animateToPage(int page) {
@@ -50,8 +51,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return BlocProvider(
       create: (_) => OnboardingBloc(),
       child: BlocConsumer<OnboardingBloc, OnboardingState>(
-        listenWhen: (prev, curr) => curr.status == OnboardingStatus.completed,
-        listener: (context, state) => _onCompleted(context),
+        listenWhen: (prev, curr) =>
+            prev.status != OnboardingStatus.completed &&
+            curr.status == OnboardingStatus.completed,
+        listener: (context, state) => _onCompleted(),
         builder: (context, state) {
           return Scaffold(
             backgroundColor: Colors.black,
@@ -103,7 +106,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildSwipeDetector(BuildContext context) {
-    return Positioned.fill(
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: MediaQuery.of(context).size.height * 0.35,
       child: PageView.builder(
         controller: _pageController,
         itemCount: OnboardingData.pages.length,

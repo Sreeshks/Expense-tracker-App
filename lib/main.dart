@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/routes/app_router.dart';
+import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
+import 'features/categories/presentation/bloc/category_bloc.dart';
+import 'features/home/presentation/bloc/dashboard_bloc.dart';
+import 'features/sync/presentation/bloc/sync_bloc.dart';
+import 'features/transactions/presentation/bloc/transaction_bloc.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await NotificationService.instance.initialize();
   runApp(const ZyboApp());
 }
 
@@ -14,12 +19,20 @@ class ZyboApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Zybo',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
-      initialRoute: AppRouter.splash,
-      onGenerateRoute: AppRouter.onGenerateRoute,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => DashboardBloc()),
+        BlocProvider(create: (_) => TransactionBloc()),
+        BlocProvider(create: (_) => CategoryBloc()),
+        BlocProvider(create: (_) => SyncBloc()),
+      ],
+      child: MaterialApp(
+        title: 'Zybo',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.dark,
+        initialRoute: '/',
+        onGenerateRoute: AppRouter.onGenerateRoute,
+      ),
     );
   }
 }

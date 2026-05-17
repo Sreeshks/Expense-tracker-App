@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/constants/api_constants.dart';
 import 'onboarding_event.dart';
 import 'onboarding_state.dart';
 
@@ -52,7 +53,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     Emitter<OnboardingState> emit,
   ) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('onboarding_complete', true);
+    await prefs.setBool(ApiConstants.onboardingCompleteKey, true);
     emit(state.copyWith(status: OnboardingStatus.completed));
   }
 }
