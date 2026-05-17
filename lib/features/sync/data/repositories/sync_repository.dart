@@ -20,8 +20,8 @@ class SyncRepository {
        _transactionRepo = transactionRepo ?? TransactionRepository();
 
   Future<void> syncAll() async {
-    await pullFromServer();
     await _purgeDeleted();
+    await pullFromServer();
     await _uploadNew();
   }
 
