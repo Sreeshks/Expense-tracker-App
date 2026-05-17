@@ -44,8 +44,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   child: Text(
                     'Transactions',
                     style: GoogleFonts.inter(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600, // Semi Bold
+                      height: 1.5, // 150% line-height
+                      letterSpacing: 20 * -0.05, // -5% letter-spacing
                       color: Colors.white,
                     ),
                   ),
@@ -113,116 +115,185 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   IconData _getCategoryIcon(String? categoryName) {
     final name = (categoryName ?? '').toLowerCase();
-    if (name.contains('food') || name.contains('grocer'))
+    if (name.contains('food') || name.contains('grocer')) {
       return Icons.shopping_bag_outlined;
-    if (name.contains('bill')) return Icons.bolt_outlined;
-    if (name.contains('transport')) return Icons.directions_car_outlined;
-    if (name.contains('shop')) return Icons.storefront_outlined;
-    if (name.contains('fruit')) return Icons.eco_outlined;
-    if (name.contains('water')) return Icons.water_drop_outlined;
-    if (name.contains('rent')) return Icons.home_outlined;
-    if (name.contains('health')) return Icons.favorite_outline;
+    }
+    if (name.contains('bill')) {
+      return Icons.bolt_outlined;
+    }
+    if (name.contains('transport')) {
+      return Icons.directions_car_outlined;
+    }
+    if (name.contains('shop')) {
+      return Icons.storefront_outlined;
+    }
+    if (name.contains('fruit')) {
+      return Icons.eco_outlined;
+    }
+    if (name.contains('water')) {
+      return Icons.water_drop_outlined;
+    }
+    if (name.contains('rent')) {
+      return Icons.home_outlined;
+    }
+    if (name.contains('health')) {
+      return Icons.favorite_outline;
+    }
     return Icons.receipt_outlined;
+  }
+
+  String _formatOrdinalDate(DateTime date) {
+    final day = date.day;
+    String suffix = 'th';
+    if (day >= 11 && day <= 13) {
+      suffix = 'th';
+    } else {
+      switch (day % 10) {
+        case 1:
+          suffix = 'st';
+          break;
+        case 2:
+          suffix = 'nd';
+          break;
+        case 3:
+          suffix = 'rd';
+          break;
+        default:
+          suffix = 'th';
+      }
+    }
+    final monthStr = DateFormat('MMM').format(date);
+    final yearStr = DateFormat('yyyy').format(date);
+    return '$day$suffix $monthStr $yearStr';
   }
 
   Widget _transactionTile(TransactionModel txn) {
     final isDebit = txn.isDebit;
     final color = isDebit ? const Color(0xFFFF4444) : const Color(0xFF1DB954);
     final prefix = isDebit ? '-' : '+';
-    final dateStr = DateFormat('d\'th\' MMM yyyy').format(txn.timestamp);
+    final dateStr = _formatOrdinalDate(txn.timestamp);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          // Category icon
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              _getCategoryIcon(txn.categoryName),
-              color: Colors.white.withValues(alpha: 0.7),
-              size: 18,
-            ),
+    return Center(
+      child: Container(
+        width: 343,
+        height: 72,
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.only(top: 8, bottom: 8, left: 16, right: 16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1,
           ),
-          const SizedBox(width: 10),
-          // Title + category
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  txn.note.isEmpty ? 'Transaction' : txn.note,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Left part: Icon and Text Details
+            Expanded(
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        _getCategoryIcon(txn.categoryName),
+                        color: Colors.white,
+                        size: 16, // icon size 16x16
+                      ),
+                    ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          txn.note.isEmpty ? 'Transaction' : txn.note,
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600, // Semi Bold
+                            height: 1.5, // 150% line-height
+                            letterSpacing: 16 * -0.05, // -5% letter-spacing
+                            color: Colors.white,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          txn.categoryName ?? 'Uncategorized',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400, // Regular
+                            height: 1.5, // 150% line-height
+                            letterSpacing: 14 * -0.05, // -5% letter-spacing
+                            color: const Color(0xFF8C8C8C), // #8C8C8C
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Right part: Date, Amount, and Delete icon
+            Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      dateStr,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400, // Regular
+                        height: 1.5, // 150% line-height
+                        letterSpacing: 13 * -0.05, // -5% letter-spacing
+                        color: Colors.white.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    Text(
+                      '$prefix₹${NumberFormat('#,##,###').format(txn.amount.round())}',
+                      style: GoogleFonts.inter(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500, // Medium
+                        height: 1.5, // 150% line-height
+                        letterSpacing: 22 * -0.05, // -5% letter-spacing
+                        color: color,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  txn.categoryName ?? 'Uncategorized',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: Colors.white.withValues(alpha: 0.4),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: () {
+                    context.read<TransactionBloc>().add(
+                      TransactionDeleted(txn.id),
+                    );
+                    context.read<DashboardBloc>().add(
+                      DashboardRefreshRequested(),
+                    );
+                  },
+                  child: const Icon(
+                    Icons.delete,
+                    color: Color(0xFFE50000), // #E50000
+                    size: 20,
                   ),
                 ),
               ],
             ),
-          ),
-          // Date
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Text(
-              dateStr,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: Colors.white.withValues(alpha: 0.35),
-              ),
-            ),
-          ),
-          // Amount
-          Text(
-            '$prefix₹${NumberFormat('#,##,###').format(txn.amount.round())}',
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Delete button
-          GestureDetector(
-            onTap: () {
-              context.read<TransactionBloc>().add(TransactionDeleted(txn.id));
-              context.read<DashboardBloc>().add(DashboardRefreshRequested());
-            },
-            child: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFF4444).withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: const Icon(
-                Icons.delete_outline,
-                color: Color(0xFFFF4444),
-                size: 14,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

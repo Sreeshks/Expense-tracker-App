@@ -47,36 +47,48 @@ class _MainShellState extends State<MainShell> {
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: IndexedStack(index: _currentIndex, children: _screens),
-        bottomNavigationBar: _buildGNav(),
+        body: Stack(
+          children: [
+            // Screen content
+            Positioned.fill(
+              child: IndexedStack(index: _currentIndex, children: _screens),
+            ),
+            // Floating bottom nav
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: MediaQuery.of(context).padding.bottom + 20,
+              child: Center(child: SizedBox(width: 230, child: _buildGNav())),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildGNav() {
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
-
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
-        ),
+        color: const Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.circular(40),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 12,
-          bottom: bottomPadding + 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: GNav(
-          gap: 8,
+          gap: 0,
           activeColor: Colors.white,
           iconSize: 22,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.all(12),
           duration: const Duration(milliseconds: 300),
           tabBackgroundColor: const Color(0xFF312ECB),
+          tabBorderRadius: 24,
           color: Colors.white.withValues(alpha: 0.45),
           tabs: [
             GButton(
@@ -89,12 +101,6 @@ class _MainShellState extends State<MainShell> {
                     ? Colors.white
                     : Colors.white.withValues(alpha: 0.45),
               ),
-              text: ' Dashboard',
-              textStyle: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
             ),
             GButton(
               icon: Icons.circle,
@@ -106,12 +112,6 @@ class _MainShellState extends State<MainShell> {
                     ? Colors.white
                     : Colors.white.withValues(alpha: 0.45),
               ),
-              text: ' Transactions',
-              textStyle: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
             ),
             GButton(
               icon: Icons.circle,
@@ -122,12 +122,6 @@ class _MainShellState extends State<MainShell> {
                 color: _currentIndex == 2
                     ? Colors.white
                     : Colors.white.withValues(alpha: 0.45),
-              ),
-              text: ' Account',
-              textStyle: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
               ),
             ),
           ],
