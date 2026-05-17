@@ -15,7 +15,6 @@ import '../../../transactions/presentation/bloc/transaction_bloc.dart';
 import '../../../transactions/presentation/bloc/transaction_event.dart';
 import '../../../categories/presentation/bloc/category_bloc.dart';
 import '../../../categories/presentation/bloc/category_event.dart';
-import '../../../../core/widgets/custom_snackbar.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});

@@ -74,6 +74,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _nickname = name;
       _isEditingNickname = false;
     });
+
+    if (mounted) {
+      context.read<DashboardBloc>().add(DashboardRefreshRequested());
+    }
   }
 
   Future<void> _logout() async {

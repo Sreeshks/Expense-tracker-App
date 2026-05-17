@@ -41,7 +41,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DashboardBloc, DashboardState>(
+    return BlocConsumer<DashboardBloc, DashboardState>(
+      listener: (context, state) {
+        _loadNickname();
+      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.background,
