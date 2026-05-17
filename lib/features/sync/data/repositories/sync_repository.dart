@@ -29,16 +29,30 @@ class SyncRepository {
     final deletedCategories = await _categoryRepo.getDeleted();
     if (deletedCategories.isNotEmpty) {
       final ids = deletedCategories.map((c) => c.id).toList();
-      await _apiClient.deleteJson(ApiConstants.deleteCategories, {'ids': ids});
+      try {
+        await _apiClient.deleteJson(ApiConstants.deleteCategories, {'ids': ids});
+      } on ApiException catch (e) {
+        // If 404 category not found, it is already deleted/absent on server, which is successful for us!
+        if (e.statusCode != 404) {
+          rethrow;
+        }
+      }
       await _categoryRepo.permanentDelete(ids);
     }
 
     final deletedTransactions = await _transactionRepo.getDeleted();
     if (deletedTransactions.isNotEmpty) {
       final ids = deletedTransactions.map((t) => t.id).toList();
-      await _apiClient.deleteJson(ApiConstants.deleteTransactions, {
-        'ids': ids,
-      });
+      try {
+        await _apiClient.deleteJson(ApiConstants.deleteTransactions, {
+          'ids': ids,
+        });
+      } on ApiException catch (e) {
+        // If 404 transaction not found, it is already deleted/absent on server, which is successful for us!
+        if (e.statusCode != 404) {
+          rethrow;
+        }
+      }
       await _transactionRepo.permanentDelete(ids);
     }
   }

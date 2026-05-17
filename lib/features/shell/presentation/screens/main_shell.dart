@@ -86,11 +86,14 @@ class _MainShellState extends State<MainShell> {
               context.read<DashboardBloc>().add(DashboardRefreshRequested());
               context.read<TransactionBloc>().add(TransactionsLoadRequested());
               context.read<CategoryBloc>().add(CategoriesLoadRequested());
-              CustomSnackBar.showSuccess(context, 'Sync completed!');
+              // CustomSnackBar.showSuccess(context, 'Sync completed!');
             }
           } else if (state.status == SyncStatus.failure) {
             if (context.mounted) {
-              CustomSnackBar.showError(context, 'Sync failed: ${state.errorMessage}');
+              // CustomSnackBar.showError(
+              //   context,
+              //   'Sync failed: ${state.errorMessage}',
+              // );
             }
           }
         },
