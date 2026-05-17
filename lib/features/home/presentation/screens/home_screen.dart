@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +23,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _nickname = 'User';
+  bool _isScrolling = false;
 
   @override
   void initState() {
@@ -44,61 +46,84 @@ class _HomeScreenState extends State<HomeScreen> {
         return Scaffold(
           backgroundColor: AppColors.background,
           body: SafeArea(
-            child: RefreshIndicator(
-              color: const Color(0xFF1DB954),
-              backgroundColor: AppColors.surface,
-              onRefresh: () async {
-                context.read<DashboardBloc>().add(DashboardRefreshRequested());
+            child: NotificationListener<UserScrollNotification>(
+              onNotification: (notification) {
+                if (notification.direction == ScrollDirection.idle) {
+                  if (_isScrolling) {
+                    setState(() {
+                      _isScrolling = false;
+                    });
+                  }
+                } else {
+                  if (!_isScrolling) {
+                    setState(() {
+                      _isScrolling = true;
+                    });
+                  }
+                }
+                return false;
               },
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  const SizedBox(height: 20),
-                  _buildGreeting(),
-                  const SizedBox(height: 20),
-                  _buildSummaryCards(state),
-                  const SizedBox(height: 20),
-                  _buildMonthlyLimit(state),
-                  const SizedBox(height: 24),
-                  _buildRecentHeader(),
-                  const SizedBox(height: 12),
-                  if (state.status == DashboardStatus.loading)
-                    _buildShimmer()
-                  else
-                    _buildRecentList(state.recentTransactions),
-                  const SizedBox(height: 80),
-                ],
+              child: RefreshIndicator(
+                color: const Color(0xFF1DB954),
+                backgroundColor: AppColors.surface,
+                onRefresh: () async {
+                  context.read<DashboardBloc>().add(DashboardRefreshRequested());
+                },
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    const SizedBox(height: 20),
+                    _buildGreeting(),
+                    const SizedBox(height: 20),
+                    _buildSummaryCards(state),
+                    const SizedBox(height: 20),
+                    _buildMonthlyLimit(state),
+                    const SizedBox(height: 24),
+                    _buildRecentHeader(),
+                    const SizedBox(height: 12),
+                    if (state.status == DashboardStatus.loading)
+                      _buildShimmer()
+                    else
+                      _buildRecentList(state.recentTransactions),
+                    const SizedBox(height: 80),
+                  ],
+                ),
               ),
             ),
           ),
-          floatingActionButton: Container(
-            margin: const EdgeInsets.only(
-              bottom: 70,
-            ), // Lift it up slightly above floating bottom bar
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF20DE39), Color(0xFF147721)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              borderRadius: BorderRadius.circular(100),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+          floatingActionButton: AnimatedScale(
+            scale: _isScrolling ? 0.0 : 1.0,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            child: Container(
+              margin: const EdgeInsets.only(
+                bottom: 70,
+              ), // Lift it up slightly above floating bottom bar
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF20DE39), Color(0xFF147721)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => _showAddTransaction(context),
                 borderRadius: BorderRadius.circular(100),
-                child: const Center(
-                  child: Icon(Icons.add, color: Colors.white, size: 24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _showAddTransaction(context),
+                  borderRadius: BorderRadius.circular(100),
+                  child: const Center(
+                    child: Icon(Icons.add, color: Colors.white, size: 24),
+                  ),
                 ),
               ),
             ),

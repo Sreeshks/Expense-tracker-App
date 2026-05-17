@@ -24,6 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _categoryController = TextEditingController();
   final _limitController = TextEditingController();
   final _nicknameController = TextEditingController();
+  final _parentScrollController = ScrollController();
   String _nickname = 'User';
   double _currentLimit = 1000;
   bool _isEditingNickname = false;
@@ -82,7 +83,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _categoryController.dispose();
     _limitController.dispose();
     _nicknameController.dispose();
+    _parentScrollController.dispose();
     super.dispose();
+  }
+
+  Widget _buildSeparator() {
+    return Center(
+      child: Container(
+        width: 375,
+        height: 3,
+        color: const Color(0x0DFFFFFF), // #FFFFFF0D
+      ),
+    );
   }
 
   @override
@@ -91,51 +103,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: ListView(
+          controller: _parentScrollController,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
             const SizedBox(height: 20),
-            Text(
-              'Profile & Settings',
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+
+            // Profile & Settings Title
+            Center(
+              child: SizedBox(
+                width: 343,
+                child: Text(
+                  'Profile & Settings',
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600, // Semi Bold
+                    height: 1.5, // 150% line-height
+                    letterSpacing: 20 * -0.05, // -5% letter-spacing
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
+            const SizedBox(height: 24),
+            _buildSeparator(),
             const SizedBox(height: 24),
 
             // --- NICKNAME ---
             _sectionLabel('NICKNAME'),
             const SizedBox(height: 8),
-            _buildNicknameRow(),
+            Center(child: _buildNicknameRow()),
+            const SizedBox(height: 24),
+            _buildSeparator(),
             const SizedBox(height: 24),
 
             // --- ALERT LIMIT ---
-            _sectionLabel('ALERT LIMIT (₹)'),
-            const SizedBox(height: 8),
-            _buildLimitRow(),
-            const SizedBox(height: 6),
-            Text(
-              'Current Limit: ₹${_currentLimit.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},')}',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: Colors.white.withValues(alpha: 0.5),
-              ),
-            ),
+            Center(child: _buildAlertLimitCard()),
+            const SizedBox(height: 24),
+            _buildSeparator(),
             const SizedBox(height: 24),
 
             // --- CATEGORIES ---
             _sectionLabel('CATEGORIES'),
             const SizedBox(height: 8),
-            _buildAddCategoryRow(),
-            const SizedBox(height: 12),
-            _buildCategoryList(),
+            _buildCategoriesCard(),
+            const SizedBox(height: 24),
+            _buildSeparator(),
             const SizedBox(height: 24),
 
             // --- CLOUD SYNC ---
             _sectionLabel('CLOUD SYNC'),
             const SizedBox(height: 8),
-            _buildSyncCard(),
+            Center(child: _buildSyncCard()),
+            const SizedBox(height: 24),
+            _buildSeparator(),
             const SizedBox(height: 24),
 
             // --- LOG OUT ---
@@ -148,45 +168,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _sectionLabel(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.inter(
-        fontSize: 11,
-        fontWeight: FontWeight.w600,
-        color: Colors.white.withValues(alpha: 0.4),
-        letterSpacing: 1.2,
+    return Center(
+      child: SizedBox(
+        width: 343,
+        child: Text(
+          text,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w400, // Regular
+            height: 1.5, // 150% line-height
+            letterSpacing: 14 * -0.05, // -5% letter-spacing
+            color: Colors.white.withValues(alpha: 0.6), // #FFFFFF99 (60%)
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildNicknameRow() {
     return Container(
-      height: 52,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      width: 343,
+      height: 64,
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1), // #FFFFFF1A
+          width: 1,
+        ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: _isEditingNickname
                 ? TextField(
                     controller: _nicknameController,
                     autofocus: true,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      color: Colors.white,
+                    style: const TextStyle(
+                      fontFamily: 'Helvetica Neue',
                       fontWeight: FontWeight.w500,
+                      fontSize: 20,
+                      height: 1.0,
+                      color: Colors.white,
                     ),
-                    decoration: const InputDecoration(border: InputBorder.none),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
                     onSubmitted: (_) => _saveNickname(),
                   )
                 : Text(
                     _nickname,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
+                    style: const TextStyle(
+                      fontFamily: 'Helvetica Neue',
                       fontWeight: FontWeight.w500,
+                      fontSize: 20,
+                      height: 1.0,
+                      letterSpacing: 20 * -0.03, // -3% letter spacing
                       color: Colors.white,
                     ),
                   ),
@@ -200,16 +240,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
             },
             child: Container(
-              width: 32,
-              height: 32,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
+                color: Colors.black, // #000000
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.white, // #FFFFFF
+                  width: 1,
+                ),
               ),
-              child: Icon(
-                _isEditingNickname ? Icons.check : Icons.edit_outlined,
-                color: Colors.white.withValues(alpha: 0.6),
-                size: 16,
+              child: Center(
+                child: Icon(
+                  _isEditingNickname ? Icons.check : Icons.edit_outlined,
+                  color: Colors.white,
+                  size: 16, // 16x16 icon size
+                ),
               ),
             ),
           ),
@@ -218,175 +264,307 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildLimitRow() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 46,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TextField(
-              controller: _limitController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
-              ],
-              style: GoogleFonts.inter(fontSize: 15, color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Amount  (₹)',
-                hintStyle: GoogleFonts.inter(
-                  fontSize: 15,
-                  color: Colors.white.withValues(alpha: 0.3),
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
+  Widget _buildAlertLimitCard() {
+    return Center(
+      child: Container(
+        width: 343,
+        height: 145,
+        padding: const EdgeInsets.only(
+          top: 20,
+          bottom: 20,
+          left: 16,
+          right: 16,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1), // #FFFFFF1A
+            width: 1,
           ),
         ),
-        const SizedBox(width: 10),
-        GestureDetector(
-          onTap: _saveLimit,
-          child: Container(
-            height: 46,
-            width: 56,
-            decoration: BoxDecoration(
-              color: const Color(0xFF312ECB),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(
-                'Set',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAddCategoryRow() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 46,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TextField(
-              controller: _categoryController,
-              textCapitalization: TextCapitalization.words,
-              style: GoogleFonts.inter(fontSize: 15, color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'New category Name',
-                hintStyle: GoogleFonts.inter(
-                  fontSize: 15,
-                  color: Colors.white.withValues(alpha: 0.3),
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        GestureDetector(
-          onTap: () {
-            final name = _categoryController.text.trim();
-            if (name.isNotEmpty) {
-              context.read<CategoryBloc>().add(CategoryAdded(name));
-              _categoryController.clear();
-              FocusScope.of(context).unfocus();
-            }
-          },
-          child: Container(
-            height: 46,
-            width: 46,
-            decoration: BoxDecoration(
-              color: const Color(0xFF312ECB),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.add, color: Colors.white, size: 22),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCategoryList() {
-    return BlocBuilder<CategoryBloc, CategoryState>(
-      builder: (context, state) {
-        if (state.categories.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Text(
-              'No categories added yet.',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'ALERT LIMIT (₹)',
               style: GoogleFonts.inter(
-                fontSize: 13,
-                color: Colors.white.withValues(alpha: 0.3),
+                fontSize: 14,
+                fontWeight: FontWeight.w400, // Regular
+                height: 1.5, // 150% line-height
+                letterSpacing: 14 * -0.05, // -5% letter-spacing
+                color: Colors.white.withValues(alpha: 0.6), // Muted white
               ),
             ),
-          );
-        }
-        return Column(
-          children: state.categories.map((cat) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      cat.name,
-                      style: GoogleFonts.inter(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.only(
+                      top: 10,
+                      bottom: 10,
+                      left: 16,
+                      right: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1), // #FFFFFF1A
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: TextField(
+                        controller: _limitController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
+                        ],
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Amount  (₹)',
+                          hintStyle: GoogleFonts.inter(
+                            fontSize: 15,
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
+                        ),
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () => context.read<CategoryBloc>().add(
-                      CategoryDeleted(cat.id),
+                ),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: _saveLimit,
+                  child: Container(
+                    width: 54,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF312ECB), // #312ECB
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF4444).withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Icon(
-                        Icons.delete_outline,
-                        color: Color(0xFFFF4444),
-                        size: 16,
+                    child: Center(
+                      child: Text(
+                        'Set',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500, // Medium
+                          height: 1.5,
+                          letterSpacing: 14 * -0.05,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                ],
+                ),
+              ],
+            ),
+            Text(
+              'Current Limit: ₹${_currentLimit.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},')}',
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                fontWeight: FontWeight.w400, // Regular
+                height: 1.0, // 100% line-height
+                letterSpacing: 15 * -0.03, // -3% letter-spacing
+                color: Colors.white,
               ),
-            );
-          }).toList(),
-        );
-      },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoriesCard() {
+    return Center(
+      child: Container(
+        width: 343,
+        height: 368,
+        padding: const EdgeInsets.only(
+          top: 20,
+          bottom: 20,
+          left: 16,
+          right: 16,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1), // #FFFFFF1A
+            width: 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Input row
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.only(
+                      top: 10,
+                      bottom: 10,
+                      left: 16,
+                      right: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1), // #FFFFFF1A
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: TextField(
+                        controller: _categoryController,
+                        textCapitalization: TextCapitalization.words,
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'New category Name',
+                          hintStyle: GoogleFonts.inter(
+                            fontSize: 15,
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: () {
+                    final name = _categoryController.text.trim();
+                    if (name.isNotEmpty) {
+                      context.read<CategoryBloc>().add(CategoryAdded(name));
+                      _categoryController.clear();
+                      FocusScope.of(context).unfocus();
+                    }
+                  },
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF312ECB),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.add, color: Colors.white, size: 20),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Divider(color: Colors.white10, height: 1),
+            const SizedBox(height: 12),
+            // Dynamic Categories List with advanced scroll propagation listener
+            Expanded(
+              child: BlocBuilder<CategoryBloc, CategoryState>(
+                builder: (context, state) {
+                  if (state.categories.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No categories added yet.',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: Colors.white.withValues(alpha: 0.3),
+                        ),
+                      ),
+                    );
+                  }
+                  return NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification notification) {
+                      if (notification is ScrollUpdateNotification) {
+                        final double delta = notification.scrollDelta ?? 0;
+                        if (delta != 0 && _parentScrollController.hasClients) {
+                          final double currentOffset =
+                              _parentScrollController.offset;
+                          final double maxParentScroll =
+                              _parentScrollController.position.maxScrollExtent;
+                          final double minParentScroll =
+                              _parentScrollController.position.minScrollExtent;
+
+                          // If reached bottom boundary and scrolling down, scroll parent down
+                          if (notification.metrics.pixels >=
+                                  notification.metrics.maxScrollExtent &&
+                              delta > 0) {
+                            final double newOffset = (currentOffset + delta)
+                                .clamp(minParentScroll, maxParentScroll);
+                            _parentScrollController.jumpTo(newOffset);
+                          }
+                          // If reached top boundary and scrolling up, scroll parent up
+                          else if (notification.metrics.pixels <=
+                                  notification.metrics.minScrollExtent &&
+                              delta < 0) {
+                            final double newOffset = (currentOffset + delta)
+                                .clamp(minParentScroll, maxParentScroll);
+                            _parentScrollController.jumpTo(newOffset);
+                          }
+                        }
+                      }
+                      return false;
+                    },
+                    child: ListView.separated(
+                      itemCount: state.categories.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final cat = state.categories[index];
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              cat.name,
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => context.read<CategoryBloc>().add(
+                                CategoryDeleted(cat.id),
+                              ),
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: const Color(0x26B50303), // #B5030326
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: const Color(0xFFB50303), // #B50303
+                                    width: 1,
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.delete,
+                                    color: Color(0xFFB50303),
+                                    size: 16, // 16x16 icon size
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -394,62 +572,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return BlocBuilder<SyncBloc, SyncState>(
       builder: (context, state) {
         final isSyncing = state.status == SyncStatus.syncing;
-        return GestureDetector(
-          onTap: isSyncing
-              ? null
-              : () => context.read<SyncBloc>().add(SyncRequested()),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF1DB954), Color(0xFF16873D)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(14),
+        return Container(
+          width: 343,
+          height: 104,
+          padding: const EdgeInsets.only(
+            top: 20,
+            bottom: 20,
+            left: 16,
+            right: 16,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.1), // #FFFFFF1A
+              width: 1,
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Sync To Cloud',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
+          ),
+          child: Center(
+            child: GestureDetector(
+              onTap: isSyncing
+                  ? null
+                  : () => context.read<SyncBloc>().add(SyncRequested()),
+              child: Container(
+                width: 311,
+                height: 64,
+                padding: const EdgeInsets.only(
+                  top: 10,
+                  bottom: 10,
+                  left: 12,
+                  right: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0x8A4340CA), // #4340CA8A
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Sync To Cloud',
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600, // Semi Bold
+                              height: 1.5, // 150% line height
+                              letterSpacing: 18 * -0.05, // -5% letter spacing
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            'Sync and update data to the backend',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400, // Regular
+                              height: 20 / 14, // 20px line height
+                              letterSpacing: 14 * -0.03, // -3% letter spacing
+                              color: Colors.white.withValues(alpha: 0.9),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    if (isSyncing)
+                      const SizedBox(
+                        width: 21.86,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
                           color: Colors.white,
                         ),
+                      )
+                    else
+                      Image.asset(
+                        'assets/cloud.png',
+                        width: 21.86,
+                        height: 18,
+                        color: Colors.white,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Sync and update data to the backend',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.75),
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
-                if (isSyncing)
-                  const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                else
-                  Image.asset(
-                    'assets/cloud.png',
-                    width: 28,
-                    height: 28,
-                    color: Colors.white.withValues(alpha: 0.9),
-                  ),
-              ],
+              ),
             ),
           ),
         );
@@ -458,27 +665,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildLogoutButton() {
-    return GestureDetector(
-      onTap: _logout,
-      child: Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Log Out',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFFF4444),
+    return Center(
+      child: GestureDetector(
+        onTap: _logout,
+        child: Container(
+          width: 343,
+          height: 52,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0x1AFFFFFF), // #FFFFFF1A
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Log Out',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600, // Semi Bold
+                  height: 1.5, // 150% line-height
+                  letterSpacing: 15 * -0.05, // -5% letter-spacing
+                  color: const Color(0xFFFF2929), // #FF2929
+                ),
               ),
-            ),
-            const SizedBox(width: 6),
-            const Icon(
-              Icons.power_settings_new,
-              color: Color(0xFFFF4444),
-              size: 18,
-            ),
-          ],
+              const SizedBox(width: 10),
+              Image.asset(
+                'assets/Power.png',
+                width: 24,
+                height: 24,
+                color: const Color(0xFFFF2929), // #FF2929
+              ),
+            ],
+          ),
         ),
       ),
     );
