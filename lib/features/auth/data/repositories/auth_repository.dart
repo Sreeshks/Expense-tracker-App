@@ -10,7 +10,7 @@ class AuthRepository {
       : _apiClient = apiClient ?? ApiClient();
 
   Future<AuthResponse> sendOtp(String phone) async {
-    final response = await _apiClient.postForm(
+    final response = await _apiClient.postJson(
       ApiConstants.sendOtp,
       {'phone': phone},
     );
@@ -21,7 +21,7 @@ class AuthRepository {
     required String phone,
     required String nickname,
   }) async {
-    final response = await _apiClient.postForm(
+    final response = await _apiClient.postJson(
       ApiConstants.createAccount,
       {'phone': phone, 'nickname': nickname},
     );

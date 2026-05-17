@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/database/app_database.dart';
 import '../../../categories/presentation/bloc/category_bloc.dart';
 import '../../../categories/presentation/bloc/category_event.dart';
 import '../../../categories/presentation/bloc/category_state.dart';
@@ -73,6 +74,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await prefs.remove(ApiConstants.tokenKey);
     await prefs.remove(ApiConstants.nicknameKey);
     await prefs.remove(ApiConstants.phoneKey);
+    await prefs.remove('monthly_limit');
+    await prefs.remove(ApiConstants.onboardingCompleteKey);
+
+    // Clear local database
+    await AppDatabase.instance.clearAllData();
+
     if (mounted) {
       Navigator.of(context).pushNamedAndRemoveUntil('/phone', (route) => false);
     }

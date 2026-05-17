@@ -52,6 +52,21 @@ class ApiClient {
     return _handleResponse(response);
   }
 
+  Future<Map<String, dynamic>> deleteJson(
+    String endpoint,
+    Map<String, dynamic> body,
+  ) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+    final headers = await _authHeaders();
+    headers['Content-Type'] = 'application/json';
+    final request = http.Request('DELETE', url);
+    request.headers.addAll(headers);
+    request.body = jsonEncode(body);
+    final streamed = await _client.send(request);
+    final response = await http.Response.fromStream(streamed);
+    return _handleResponse(response);
+  }
+
   Future<Map<String, dynamic>> deleteForm(
     String endpoint,
     Map<String, String> fields,

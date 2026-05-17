@@ -67,4 +67,12 @@ class AppDatabase {
       _database = null;
     }
   }
+
+  Future<void> clearAllData() async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete('transactions');
+      await txn.delete('categories');
+    });
+  }
 }

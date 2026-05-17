@@ -47,14 +47,22 @@ class TransactionModel extends Equatable {
         isDeleted: map['is_deleted'] as int? ?? 0,
       );
 
-  Map<String, dynamic> toApiJson() => {
-        'id': id,
-        'amount': amount,
-        'note': note,
-        'type': type.substring(0, 1).toUpperCase() + type.substring(1),
-        'category_id': categoryId,
-        'timestamp': timestamp.toIso8601String(),
-      };
+  Map<String, dynamic> toApiJson() {
+    final y = timestamp.year.toString().padLeft(4, '0');
+    final m = timestamp.month.toString().padLeft(2, '0');
+    final d = timestamp.day.toString().padLeft(2, '0');
+    final hh = timestamp.hour.toString().padLeft(2, '0');
+    final mm = timestamp.minute.toString().padLeft(2, '0');
+    final ss = timestamp.second.toString().padLeft(2, '0');
+    return {
+      'id': id,
+      'amount': amount,
+      'note': note,
+      'type': type.toLowerCase(),
+      'category_id': categoryId,
+      'timestamp': '$y-$m-$d $hh:$mm:$ss',
+    };
+  }
 
   bool get isDebit => type.toLowerCase() == 'debit';
   bool get isCredit => type.toLowerCase() == 'credit';
