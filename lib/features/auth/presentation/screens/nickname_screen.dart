@@ -114,7 +114,10 @@ class _NicknameScreenState extends State<NicknameScreen> {
                                       ),
                                     ),
                                     border: InputBorder.none,
-                                    contentPadding: EdgeInsets.zero,
+                                  isCollapsed: true,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 2,
+                                    ),
                                   ),
                                   onChanged: (_) => setState(() {}),
                                 ),
